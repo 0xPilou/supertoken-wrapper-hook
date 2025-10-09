@@ -39,10 +39,8 @@ contract SuperTokenWrapperHook is BaseTokenWrapperHook {
         // Upgrade SuperToken to Underlying Token
         superToken.upgrade(underlyingAmount);
 
-        _settle(wrapperCurrency, address(this), underlyingAmount);
-
         // Settle on PoolManager which will take into account the new SuperToken
-        poolManager.settle();
+        _settle(wrapperCurrency, address(this), underlyingAmount);
 
         return (underlyingAmount, underlyingAmount); // 1:1 ratio
     }
