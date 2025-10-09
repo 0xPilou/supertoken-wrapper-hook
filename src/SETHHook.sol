@@ -10,7 +10,7 @@ import { Currency, CurrencyLibrary } from "@uniswap/v4-core/src/types/Currency.s
 /// @title Wrapped SuperToken Hook
 /// @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
 /// @dev Implements 1:1 upgrading/downgrading a SuperToken to its underlying token
-contract SuperTokenWrapperHook is BaseTokenWrapperHook {
+contract SETHHook is BaseTokenWrapperHook {
 
     /// @notice The SuperToken contract
     ISETH public immutable seth;
