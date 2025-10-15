@@ -7,17 +7,22 @@ import { ISETH } from "@superfluid-finance/ethereum-contracts/contracts/interfac
 import { IPoolManager } from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
 import { Currency, CurrencyLibrary } from "@uniswap/v4-core/src/types/Currency.sol";
 
-/// @title Wrapped SuperToken Hook
-/// @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
-/// @dev Implements 1:1 upgrading/downgrading a SuperToken to its underlying token
+/**
+ * @title Native Asset SuperToken Hook
+ * @author Superfluid
+ * @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
+ * @dev Implements 1:1 upgrading/downgrading a SuperToken to/from its underlying token
+ */
 contract SETHHook is BaseTokenWrapperHook {
 
-    /// @notice The SuperToken contract
+    /// @notice The Native Asset SuperToken contract address (SETH)
     ISETH public immutable seth;
 
-    /// @notice Creates a new SuperToken wrapper hook
-    /// @param _manager The Uniswap V4 pool manager
-    /// @param _seth The SETH contract address
+    /**
+     * @notice Creates a new SuperToken wrapper hook
+     * @param _manager The Uniswap V4 pool manager
+     * @param _seth The SETH contract address
+     */
     constructor(IPoolManager _manager, address _seth)
         BaseTokenWrapperHook(_manager, Currency.wrap(_seth), CurrencyLibrary.ADDRESS_ZERO)
     {
@@ -26,10 +31,11 @@ contract SETHHook is BaseTokenWrapperHook {
 
     /// @inheritdoc BaseTokenWrapperHook
     function _deposit(uint256 underlyingAmount) internal override returns (uint256, uint256) {
-        // Sync WETH on PoolManager
+        // Sync ETHx on PoolManager
         poolManager.sync(wrapperCurrency);
 
-        // take Underlying Token from PoolManager to this Hook contract
+        // Take Underlying Token from PoolManager to the wrapper contract
+        // (this work because SETH contract has a receive function that calls upgradeByETH)
         _take(underlyingCurrency, address(seth), underlyingAmount);
 
         // Settle on PoolManager which will take into account the new SuperToken
@@ -40,7 +46,7 @@ contract SETHHook is BaseTokenWrapperHook {
 
     /// @inheritdoc BaseTokenWrapperHook
     function _withdraw(uint256 wrapperAmount) internal override returns (uint256, uint256) {
-        // take the SuperToken into this hook contract
+        // take the SuperToken from the PoolManager into this hook contract
         _take(wrapperCurrency, address(this), wrapperAmount);
 
         // downgrade SuperToken to Underlying Token

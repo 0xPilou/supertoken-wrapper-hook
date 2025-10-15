@@ -8,17 +8,23 @@ import { ISuperToken } from "@superfluid-finance/ethereum-contracts/contracts/su
 import { IPoolManager } from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
 import { Currency } from "@uniswap/v4-core/src/types/Currency.sol";
 
-/// @title Wrapped SuperToken Hook
-/// @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
-/// @dev Implements 1:1 upgrading/downgrading a SuperToken to its underlying token
+/**
+ * @title Wrapped SuperToken Hook
+ * @author Superfluid
+ * @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
+ * @dev Implements 1:1 upgrading/downgrading a SuperToken to/from its underlying token
+ */
 contract SuperTokenWrapperHook is BaseTokenWrapperHook {
 
     /// @notice The SuperToken contract
     ISuperToken public immutable superToken;
 
-    /// @notice Creates a new SuperToken wrapper hook
-    /// @param _manager The Uniswap V4 pool manager
-    /// @param _superToken The SuperToken contract address
+    /**
+     * @notice Creates a new SuperToken wrapper hook
+     * @param _manager The Uniswap V4 pool manager
+     * @param _superToken The SuperToken contract address
+     * @param _underlyingToken The underlying token contract address
+     */
     constructor(IPoolManager _manager, address _superToken, address _underlyingToken)
         BaseTokenWrapperHook(_manager, Currency.wrap(_superToken), Currency.wrap(_underlyingToken))
     {
@@ -27,10 +33,10 @@ contract SuperTokenWrapperHook is BaseTokenWrapperHook {
 
     /// @inheritdoc BaseTokenWrapperHook
     function _deposit(uint256 underlyingAmount) internal override returns (uint256, uint256) {
-        // Sync WETH on PoolManager
+        // Sync the SuperToken asset on PoolManager
         poolManager.sync(wrapperCurrency);
 
-        // take Underlying Token from PoolManager to this Hook contract
+        // Take Underlying Token from PoolManager to this Hook contract
         _take(underlyingCurrency, address(this), underlyingAmount);
 
         // Approve SuperToken to spend Underlying Token from this Hook contract
