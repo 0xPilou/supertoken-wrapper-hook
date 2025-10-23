@@ -10,7 +10,7 @@ import { Currency } from "@uniswap/v4-core/src/types/Currency.sol";
 
 /**
  * @title Wrapped SuperToken Hook
- * @author Superfluid
+ * @author 0xPilou
  * @notice Hook for upgrading/downgrading SuperToken in Uniswap V4 pools
  * @dev Implements 1:1 upgrading/downgrading a SuperToken to/from its underlying token
  */
