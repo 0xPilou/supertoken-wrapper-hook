@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import { IHooks } from "@uniswap/v4-core/src/interfaces/IHooks.sol";
 import { IPoolManager } from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
 import { Hooks } from "@uniswap/v4-core/src/libraries/Hooks.sol";
-
-import { TickMath } from "@uniswap/v4-core/src/libraries/TickMath.sol";
-import { Currency } from "@uniswap/v4-core/src/types/Currency.sol";
-import { PoolKey } from "@uniswap/v4-core/src/types/PoolKey.sol";
 import { HookMiner } from "@uniswap/v4-periphery/src/utils/HookMiner.sol";
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
@@ -67,33 +62,10 @@ contract DeploySuperTokenWrapperHookScript is Script {
 
         require(address(stHook) == hookAddress, "DeployHookScript: Hook Address Mismatch");
 
-        _createPool(address(stHook), config);
-
         console.log("");
         console.log("===> DEPLOYMENT RESULTS");
         console.log(" --- SuperTokenWrapperHook            :", address(stHook));
         console.log("");
-    }
-
-    function _createPool(address hook, NetworkConfig.DeploymentConfig memory config) internal {
-        Currency currency0 =
-            config.usdc < config.usdcx ? Currency.wrap(address(config.usdc)) : Currency.wrap(address(config.usdcx));
-        Currency currency1 =
-            config.usdc < config.usdcx ? Currency.wrap(address(config.usdcx)) : Currency.wrap(address(config.usdc));
-
-        // Create pool key for USDC/USDCx
-        PoolKey memory poolKey = PoolKey({
-            currency0: currency0,
-            currency1: currency1,
-            fee: 0, // Must be 0 for wrapper pools
-            tickSpacing: 60,
-            hooks: IHooks(hook)
-        });
-
-        // Initialize pool at 1:1 price
-        uint160 initSqrtPriceX96 = uint160(TickMath.getSqrtPriceAtTick(0));
-
-        IPoolManager(config.poolManager).initialize(poolKey, initSqrtPriceX96);
     }
 
 }
